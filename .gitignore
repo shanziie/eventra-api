@@ -1,0 +1,13 @@
+# Rahasia dan konfigurasi lokal
+.env
+
+logs/*
+!logs/.gitkeep
+
+# Binary hasil build
+eventra-api
+eventra-api.exe
+*.exe
+
+# Cache Go
+vendor/
