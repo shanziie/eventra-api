@@ -8,8 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	"eventra-api/app/repository"
+	"eventra-api/app/service"
 	"eventra-api/config"
 	"eventra-api/database"
+	"eventra-api/helper"
 	"eventra-api/route"
 )
 
@@ -17,7 +20,7 @@ func main() {
 	cfg := config.Load()
 	logger := config.InitLogger(cfg.LogLevel)
 
-	// JWT_SECRET kurang dari 32 karakter adalah risiko keamanan — hentikan aplikasi.
+	// Validasi keamanan: JWT_SECRET minimal 32 karakter untuk algoritma HS256
 	if len(cfg.JWTSecret) < 32 {
 		logger.Error("JWT_SECRET harus minimal 32 karakter, aplikasi dihentikan")
 		os.Exit(1)
@@ -30,10 +33,24 @@ func main() {
 	}
 	defer db.Close()
 
-	app := config.NewApp(cfg, logger)
-	route.Setup(app, db)
+	// Muat seluruh tabel RBAC sekali saat startup sesuai AGENTS.md §6 (fail closed)
+	initCtx, initCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := helper.LoadPermissions(initCtx, db); err != nil {
+		initCancel()
+		logger.Error("gagal memuat permission RBAC dari database", "error", err)
+		os.Exit(1)
+	}
+	initCancel()
 
-	// Jalankan server di goroutine terpisah agar sinyal shutdown bisa diterima.
+	// Inisialisasi dependency layer (Repository -> Service)
+	userRepo := repository.NewUserRepository(db)
+	tokenRepo := repository.NewTokenRepository(db)
+	jwtManager := helper.NewJWTManager(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTAccessTTL)
+	authService := service.NewAuthService(userRepo, tokenRepo, jwtManager, cfg.JWTRefreshTTLDays)
+
+	app := config.NewApp(cfg, logger)
+	route.Setup(app, db, authService, jwtManager)
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
@@ -48,10 +65,10 @@ func main() {
 	<-quit
 	logger.Info("menerima sinyal shutdown, menyelesaikan request yang berjalan...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
 
-	if err := app.ShutdownWithContext(ctx); err != nil {
+	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
 		logger.Error("gagal graceful shutdown", "error", err)
 		os.Exit(1)
 	}
