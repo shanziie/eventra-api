@@ -45,11 +45,21 @@ func main() {
 	// Inisialisasi dependency layer (Repository -> Service)
 	userRepo := repository.NewUserRepository(db)
 	tokenRepo := repository.NewTokenRepository(db)
+	categoryRepo := repository.NewCategoryRepository(db)
+	eventRepo := repository.NewEventRepository(db)
+	ticketTypeRepo := repository.NewTicketTypeRepository(db)
+	regRepo := repository.NewRegistrationRepository(db)
+	paymentRepo := repository.NewPaymentRepository(db)
+
 	jwtManager := helper.NewJWTManager(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTAccessTTL)
 	authService := service.NewAuthService(userRepo, tokenRepo, jwtManager, cfg.JWTRefreshTTLDays)
+	userService := service.NewUserService(userRepo)
+	categoryService := service.NewCategoryService(categoryRepo)
+	eventService := service.NewEventService(eventRepo, ticketTypeRepo)
+	registrationService := service.NewRegistrationService(regRepo, eventRepo, ticketTypeRepo, paymentRepo)
 
 	app := config.NewApp(cfg, logger)
-	route.Setup(app, db, authService, jwtManager)
+	route.Setup(app, db, authService, userService, categoryService, eventService, registrationService, jwtManager)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
