@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("data tidak ditemukan")
-	ErrConflict = errors.New("konflik integritas data")
+	ErrNotFound         = errors.New("data tidak ditemukan")
+	ErrConflict         = errors.New("konflik integritas data")
+	ErrQuotaFull        = errors.New("kuota tiket penuh")
+	ErrAlreadyCancelled = errors.New("pendaftaran sudah dibatalkan")
 )
 
 // DuplicateError membawa informasi nama constraint agar service bisa membedakan duplikat username atau email.
