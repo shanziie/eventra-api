@@ -11,3 +11,5 @@ eventra-api.exe
 
 # Cache Go
 vendor/
+
+AGENTS.md
