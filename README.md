@@ -1,99 +1,155 @@
-# Eventra API — Backend Sistem Manajemen Event & Tiket
+# Eventra API
 
-Eventra API adalah sistem backend untuk manajemen event, penjualan tiket, registrasi, pembayaran, check-in, dan kontrol akses berbasis peran (RBAC). Proyek ini dikembangkan sebagai tugas Praktikum Pemrograman Backend Lanjut (D4 Teknik Informatika, UNAIR).
+Eventra API merupakan backend untuk sistem manajemen event dan tiket. API ini menyediakan fitur autentikasi pengguna, pengelolaan event, jenis tiket, registrasi peserta, pembayaran, check-in, serta pengaturan hak akses berdasarkan role (RBAC).
 
-## 1. Teknologi & Stack
-- **Bahasa**: Go (versi stabil terbaru)
-- **Framework Web**: Fiber v2 (`github.com/gofiber/fiber/v2`)
-- **Database**: PostgreSQL
-- **Driver / Pool**: `github.com/jackc/pgx/v5` dan `pgxpool`
-- **Konfigurasi**: `github.com/joho/godotenv`
-- **Autentikasi**: `github.com/golang-jwt/v5` (JWT HS256) & `golang.org/x/crypto/bcrypt` (cost 12)
-- **Validasi**: `github.com/go-playground/validator/v10`
-- **Logging**: `log/slog` dengan rotasi file `gopkg.in/natefinch/lumberjack.v2`
-- **Pengujian**: Testing bawaan Go (`testing`)
+Proyek ini dikembangkan sebagai tugas Praktikum Pemrograman Backend Lanjut, D4 Teknik Informatika, Universitas Airlangga.
 
-## 2. System Requirements
-- Go 1.21+ terinstal
-- PostgreSQL aktif (lokal atau remote)
+## 1. Teknologi yang Digunakan
 
-## 3. Instalasi & Setup Repository
+* **Bahasa:** Go
+* **Framework:** Fiber v2 (`github.com/gofiber/fiber/v2`)
+* **Database:** PostgreSQL
+* **Database Driver:** `github.com/jackc/pgx/v5` dan `pgxpool`
+* **Environment Configuration:** `github.com/joho/godotenv`
+* **Authentication:** `github.com/golang-jwt/v5` dengan JWT HS256
+* **Password Hashing:** `golang.org/x/crypto/bcrypt`
+* **Validation:** `github.com/go-playground/validator/v10`
+* **Logging:** `log/slog` dan `gopkg.in/natefinch/lumberjack.v2`
+* **Testing:** Go testing package
+
+## 2. Persyaratan Sistem
+
+Sebelum menjalankan aplikasi, pastikan sudah tersedia:
+
+* Go versi 1.21 atau sesuai dengan kebutuhan di `go.mod`
+* PostgreSQL
+* Git
+
+## 3. Instalasi
+
+Clone repository dan masuk ke direktori proyek:
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/shanziie/eventra-api.git
 cd eventra-api
 go mod download
 ```
 
-## 4. Konfigurasi Environment (`.env`)
-Salin `.env.example` menjadi `.env` dan sesuaikan nilai koneksi database serta rahasia JWT:
-```bash
-cp .env.example .env
-```
-*(Catatan: `JWT_SECRET` wajib memiliki panjang minimal 32 karakter, jika kurang aplikasi akan menghentikan eksekusi saat startup).*
+## 4. Konfigurasi Environment
 
-## 5. Cara Menjalankan Aplikasi
-```bash
-go run main.go
-```
-Server akan berjalan di `http://localhost:8080` (sesuaikan port di `.env`).
+Salin file `.env.example` menjadi `.env`, kemudian sesuaikan konfigurasi database dan JWT dengan lingkungan lokal.
 
-## 6. Struktur Folder Proyek (Baku Modul 4)
+Untuk PowerShell Windows:
+
+```powershell
+Copy-Item .env.example .env
 ```
+
+Pastikan `JWT_SECRET` memiliki panjang minimal 32 karakter. Gunakan secret sendiri untuk lingkungan lokal dan jangan mengunggah kredensial asli ke repository publik.
+
+## 5. Menyiapkan Database
+
+Buat database PostgreSQL sesuai konfigurasi pada file `.env`.
+
+Jalankan file migrasi SQL di folder `migrations/` secara berurutan:
+
+1. `001_rbac.sql`: tabel role, permission, dan relasinya.
+2. `002_users_auth.sql`: tabel pengguna dan refresh token.
+3. `003_categories.sql`: tabel kategori event.
+4. `004_events.sql`: tabel event dan jenis tiket.
+5. `005_registrations.sql`: tabel registrasi dan pembayaran.
+
+Pastikan semua migrasi berhasil dijalankan sebelum memulai aplikasi.
+
+## 6. Menjalankan Aplikasi
+
+Jalankan perintah berikut dari direktori utama proyek:
+
+```bash
+go run .
+```
+
+Server akan berjalan menggunakan port yang ditentukan dalam konfigurasi aplikasi. Periksa konfigurasi lokal untuk mengetahui alamat dan port yang digunakan.
+
+## 7. Struktur Folder
+
+```text
 eventra-api/
 ├── app/
-│   ├── model/        # Entitas, request, response (tag json + validate)
-│   ├── repository/   # Query SQL, interface repository, sentinel error
-│   └── service/      # Method Fiber (*fiber.Ctx) + business rules murni (*_rules.go)
-├── config/           # app.go, env.go, logger.go
-├── database/         # postgres.go (pool)
-├── helper/           # response, errors, validator, jwt, security, cursor, negotiate, authz
-├── middleware/       # middleware.go, auth.go, authz.go
-├── route/            # route.go (35+ endpoint)
-├── migrations/       # 001_rbac.sql s.d 005_registrations.sql
-├── docs/             # Dokumentasi lengkap (API, DATABASE, PRD, MATRIX, dll.)
-├── postman/          # Postman collection untuk 35 endpoint
-├── logs/             # (tidak di-commit)
-└── main.go
+│   ├── model/        # Model dan struktur request/response
+│   ├── repository/   # Query dan akses database
+│   └── service/      # Logika bisnis aplikasi
+├── config/           # Konfigurasi aplikasi
+├── database/         # Koneksi database
+├── helper/           # Fungsi bantuan
+├── middleware/       # Middleware autentikasi dan otorisasi
+├── migrations/       # Migrasi database
+├── postman/          # Koleksi request API
+├── route/            # Definisi endpoint API
+├── logs/             # File log lokal
+├── main.go
+├── go.mod
+└── README.md
 ```
 
-## 7. Skema Database & Migrasi
-Migrasi SQL di folder `migrations/` dijalankan secara berurutan:
-1. `001_rbac.sql`: Tabel `roles`, `permissions`, `role_permissions` beserta seed data.
-2. `002_users_auth.sql`: Tabel `users` (dengan unique index lowercase `username` dan `email`) dan `refresh_tokens`.
-3. `003_categories.sql`: Tabel `categories` untuk kategori event.
-4. `004_events.sql`: Tabel `events` dan `ticket_types` dengan constraint kapasitas, kuota, `chk_event_times`, dan `chk_ticket_sold_quota`.
-5. `005_registrations.sql`: Tabel `registrations` (dengan unique index aktif `idx_registrations_user_event_active`) dan `payments`.
-
 ## 8. Authentication
-- Pendaftaran akun dengan password terenkripsi bcrypt (cost 12, max 72 karakter). Role otomatis diset `participant` dari server.
-- Proteksi User Enumeration: Jika username tidak ditemukan saat login, sistem tetap menjalankan *dummy hash* dan memberikan pesan error yang sama persis.
-- JWT HS256 dengan access token berlaku 15 menit, refresh token acak 32 byte disimpan sebagai hash SHA-256 dan dapat di-revoke saat logout.
-- Rate limiter login (5 request per menit per IP).
 
-## 9. Authorization & RBAC
-- Role-Based Access Control (RBAC) dengan tabel dinamis di database. Permission dimuat sekali saat start (`main.go`).
-- Middleware `RequireAuth` selalu dijalankan sebelum `RequirePermission`.
-- Keputusan berdasarkan data/kepemilikan (ownership) diimplementasikan melalui fungsi murni di layer service (`CanAccessUser`, `CanManageEvent`, `CanAccessRegistration`).
+Fitur autentikasi yang tersedia meliputi:
 
-## 10. Daftar Endpoint API (35 Endpoint)
-Terdaftar di `route/route.go` meliputi:
-- **Health**: `GET /api/v1/health`
-- **Auth**: Register, Login, Refresh, Logout, Me (#2–#6)
-- **Users**: List, Get by ID, Put, Patch, Delete, Assign Role, Get Registrations (#7–#12, #35)
-- **Categories**: List, Create, Update, Delete (#13–#16)
-- **Events & Ticket Types**: List, Get by ID, Create, Put, Patch, Delete, Status, Get Ticket Types, Create Ticket Type, Update Ticket Type, Delete Ticket Type (#17–#27)
-- **Registrations & Payments**: Create Registration, Get Registrations by Event (JSON/CSV), Get Registration by ID, Submit Payment, Verify Payment, Cancel Registration, Check-in (#28–#34)
+* Registrasi akun dengan password yang di-hash menggunakan bcrypt.
+* Login menggunakan JWT access token.
+* Refresh token untuk memperbarui sesi autentikasi.
+* Logout dengan pencabutan refresh token.
+* Pembatasan request login berdasarkan alamat IP.
+* Penanganan login yang membantu mencegah *user enumeration*.
 
-## 11. Pengujian & Testing
-- Unit tests untuk business rules (`app/service/*_test.go`) dan helper (`helper/*_test.go`) menggunakan framework `testing` bawaan Go.
-- Postman Collection tersedia di `postman/eventra-api.postman_collection.json`.
-- Matriks Hak Akses tersedia di `docs/MATRIX_HAK_AKSES.md`.
+Saat registrasi, role pengguna ditentukan oleh server sesuai aturan aplikasi.
 
-## 12. Pemetaan Modul 1–7
-Detail pemetaan materi modul praktikum tercantum di `docs/MODUL_MAPPING.md`.
+## 9. Authorization dan RBAC
 
-## 13. Asumsi & Keputusan Desain
-Tercantum lengkap di `docs/ASUMSI.md`.
+Eventra API menerapkan *Role-Based Access Control* (RBAC) untuk mengatur akses pengguna terhadap endpoint dan data.
 
-## 14. Kontak & Pemilik Proyek
-Mahasiswa D4 Teknik Informatika, Universitas Airlangga (Praktikum Pemrograman Backend Lanjut).
+Penerapannya mencakup:
+
+* Pemeriksaan autentikasi sebelum pemeriksaan permission.
+* Pengaturan permission berdasarkan role.
+* Pembatasan akses berdasarkan kepemilikan data.
+* Proteksi operasi pengelolaan pengguna, event, dan registrasi sesuai hak akses.
+
+## 10. Fitur dan Endpoint API
+
+Endpoint menggunakan prefix `/api/v1`. Daftar route lengkap dapat dilihat di `route/route.go`.
+
+| Modul          | Fitur                                                       |
+| -------------- | ----------------------------------------------------------- |
+| Health         | Pemeriksaan status aplikasi                                 |
+| Authentication | Register, login, refresh token, logout, dan profil pengguna |
+| Users          | Pengelolaan pengguna dan role                               |
+| Categories     | Pengelolaan kategori event                                  |
+| Events         | Pembuatan, pengambilan, perubahan, dan penghapusan event    |
+| Ticket Types   | Pengelolaan jenis tiket, harga, dan kuota                   |
+| Registrations  | Pendaftaran peserta dan pengelolaan registrasi              |
+| Payments       | Pengajuan dan verifikasi pembayaran                         |
+| Check-in       | Pencatatan kehadiran peserta                                |
+
+Beberapa endpoint juga mendukung pagination dan pengambilan daftar registrasi dalam format CSV sesuai implementasinya.
+
+## 11. Pengujian
+
+Untuk menjalankan pengujian pada seluruh package, gunakan:
+
+```bash
+go test ./...
+```
+
+Koleksi request untuk pengujian API tersedia di:
+
+`postman/eventra-api.postman_collection.json`
+
+Import file tersebut ke Postman, lalu sesuaikan base URL, token autentikasi, dan data request dengan konfigurasi lokal.
+
+## 12. Informasi Proyek
+
+**Eventra API**
+Praktikum Pemrograman Backend Lanjut
+D4 Teknik Informatika, Universitas Airlangga
