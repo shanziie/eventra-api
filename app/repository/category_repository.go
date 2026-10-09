@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// CategoryRepository adalah kontrak akses data kategori event.
+// kontrak akses data kategori event
 type CategoryRepository interface {
 	FindAll(ctx context.Context) ([]model.Category, error)
 	FindByID(ctx context.Context, id int) (*model.Category, error)

@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// Event merepresentasikan entitas event di database.
+// Entitas event di database
 type Event struct {
 	ID                  int       `json:"id"`
 	OrganizerID         int       `json:"organizer_id"`
@@ -24,7 +24,7 @@ type Event struct {
 	CategoryName         *string `json:"category_name,omitempty"`
 }
 
-// CreateEventRequest memuat data untuk pembuatan event baru.
+// pembuatan event baru
 type CreateEventRequest struct {
 	CategoryID           int       `json:"category_id" validate:"required,min=1"`
 	Title                string    `json:"title" validate:"required,min=3,max=150"`
@@ -37,7 +37,7 @@ type CreateEventRequest struct {
 	RegistrationDeadline time.Time `json:"registration_deadline" validate:"required"`
 }
 
-// PutEventRequest memuat data untuk pembaruan penuh (PUT) event (wajib semua field).
+// pembaruan penuh (PUT) event (wajib semua field)
 type PutEventRequest struct {
 	CategoryID           int       `json:"category_id" validate:"required,min=1"`
 	Title                string    `json:"title" validate:"required,min=3,max=150"`
@@ -50,7 +50,7 @@ type PutEventRequest struct {
 	RegistrationDeadline time.Time `json:"registration_deadline" validate:"required"`
 }
 
-// PatchEventRequest memuat data untuk pembaruan sebagian (PATCH) event (menggunakan pointer untuk omitnil).
+// pembaruan sebagian (PATCH) event (menggunakan pointer untuk omitnil)
 type PatchEventRequest struct {
 	CategoryID           *int       `json:"category_id,omitempty" validate:"omitempty,min=1"`
 	Title                *string    `json:"title,omitempty" validate:"omitempty,min=3,max=150"`
@@ -63,12 +63,12 @@ type PatchEventRequest struct {
 	RegistrationDeadline *time.Time `json:"registration_deadline,omitempty"`
 }
 
-// UpdateEventStatusRequest memuat status baru event.
+// status baru event
 type UpdateEventStatusRequest struct {
 	Status string `json:"status" validate:"required,oneof=draft published cancelled finished"`
 }
 
-// EventCursorResponse merepresentasikan respons list event dengan cursor pagination.
+// respons list event dengan cursor pagination
 type EventCursorResponse struct {
 	Data       []Event `json:"data"`
 	Pagination struct {

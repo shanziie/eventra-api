@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"eventra-api/app/model"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -75,4 +77,21 @@ func ReadOffsetQuery(c *fiber.Ctx, sortWhitelist map[string]string) (OffsetQuery
 	}
 
 	return q, nil
+}
+
+// CalculateMeta menghitung informasi pagination offset (page, limit, total, total_pages).
+func CalculateMeta(page, limit, total int) model.Meta {
+	totalPages := total / limit
+	if total%limit != 0 {
+		totalPages++
+	}
+	if totalPages == 0 {
+		totalPages = 1
+	}
+	return model.Meta{
+		Page:       page,
+		Limit:      limit,
+		Total:      total,
+		TotalPages: totalPages,
+	}
 }

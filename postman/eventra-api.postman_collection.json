@@ -1,0 +1,699 @@
+{
+  "info": {
+    "_postman_id": "eventra-api-collection-v1",
+    "name": "Eventra API Collection",
+    "description": "Postman collection containing all 35 endpoints of Eventra API with authentication, request bodies, expected statuses, and negative scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "ticketTypeId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "registrationId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            },
+            "description": "Checks server and DB health. Expected 200 OK or 503 Service Unavailable."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (#2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"full_name\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Registers a new user (role defaults to participant). Expected 201 Created or 422/409 on conflict."
+          }
+        },
+        {
+          "name": "Login (#3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Authenticates user and returns access token and refresh token. Expected 200 OK or 401 Unauthorized."
+          }
+        },
+        {
+          "name": "Refresh Token (#4)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Refreshes access token using refresh token. Expected 200 OK or 401 Unauthorized."
+          }
+        },
+        {
+          "name": "Logout (#5)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Revokes refresh token. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Get Me (#6)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "Gets current authenticated user profile and permissions. Expected 200 OK or 401 Unauthorized."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Users (#7)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Lists users with pagination (requires user:list). Expected 200 OK or 403 Forbidden."
+          }
+        },
+        {
+          "name": "Get User By ID (#8)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Gets user profile by ID (ownership or read:any). Expected 200 OK, 403 Forbidden, or 404 Not Found."
+          }
+        },
+        {
+          "name": "Update User Put (#9)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe_updated\",\n  \"email\": \"johndoe_updated@example.com\",\n  \"full_name\": \"John Doe Updated\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Full update of user. Expected 200 OK or 403 Forbidden."
+          }
+        },
+        {
+          "name": "Update User Patch (#10)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"John Partial\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Partial update of user. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Delete User (#11)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Deletes user (requires user:delete permission and BR-U4/BR-U5). Expected 200 OK or 403 Forbidden."
+          }
+        },
+        {
+          "name": "Assign Role (#12)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"organizer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}", "role"]
+            },
+            "description": "Assigns role to user (requires role:assign). Expected 200 OK or 403 Forbidden."
+          }
+        },
+        {
+          "name": "Get User Registrations (#35)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}/registrations?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}", "registrations"],
+              "query": [
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Gets registrations for user with cursor pagination. Expected 200 OK or 403 Forbidden."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get Categories (#13)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "Lists event categories. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Create Category (#14)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Technology\",\n  \"description\": \"Tech events and workshops\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "Creates category (requires category:create). Expected 201 Created or 403 Forbidden."
+          }
+        },
+        {
+          "name": "Update Category (#15)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tech & Innovation\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Updates category (requires category:update). Expected 200 OK."
+          }
+        },
+        {
+          "name": "Delete Category (#16)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Deletes category (requires category:delete and BR-C2). Expected 200 OK or 409 Conflict."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events & Ticket Types",
+      "item": [
+        {
+          "name": "Get Events (#17)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events"],
+              "query": [
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Lists published/finished events with cursor pagination. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Get Event By ID (#18)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}"]
+            },
+            "description": "Gets event by ID. Draft events return 404 for non-owners. Expected 200 OK or 404 Not Found."
+          }
+        },
+        {
+          "name": "Create Event (#19)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"title\": \"Go Backend Conference\",\n  \"description\": \"Annual Go conference\",\n  \"location\": \"Auditorium ITS\",\n  \"capacity\": 100,\n  \"starts_at\": \"2026-11-01T09:00:00Z\",\n  \"ends_at\": \"2026-11-01T17:00:00Z\",\n  \"registration_deadline\": \"2026-10-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Creates event (requires event:create). Expected 201 Created."
+          }
+        },
+        {
+          "name": "Update Event Put (#20)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"title\": \"Go Backend Conference Updated\",\n  \"description\": \"Updated desc\",\n  \"location\": \"Auditorium ITS Online\",\n  \"capacity\": 150,\n  \"starts_at\": \"2026-11-01T09:00:00Z\",\n  \"ends_at\": \"2026-11-01T17:00:00Z\",\n  \"registration_deadline\": \"2026-10-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}"]
+            },
+            "description": "Full update of event (ownership or event:update:any). Expected 200 OK."
+          }
+        },
+        {
+          "name": "Update Event Patch (#21)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Go Backend Conference Patched\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}"]
+            },
+            "description": "Partial update of event. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Delete Event (#22)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}"]
+            },
+            "description": "Deletes draft event (BR-E6). Expected 200 OK or 409 Conflict."
+          }
+        },
+        {
+          "name": "Update Event Status (#23)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"published\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}", "status"]
+            },
+            "description": "Updates event status (draft -> published -> finished/cancelled). Expected 200 OK."
+          }
+        },
+        {
+          "name": "Get Ticket Types (#24)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}/ticket-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}", "ticket-types"]
+            },
+            "description": "Lists ticket types for event. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Create Ticket Type (#25)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"VIP\",\n  \"price\": 50000,\n  \"quota\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}/ticket-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}", "ticket-types"]
+            },
+            "description": "Creates ticket type for event. Expected 201 Created."
+          }
+        },
+        {
+          "name": "Update Ticket Type (#26)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"VIP Updated\",\n  \"price\": 75000,\n  \"quota\": 60\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ticket-types/{{ticketTypeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ticket-types", "{{ticketTypeId}}"]
+            },
+            "description": "Updates ticket type. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Delete Ticket Type (#27)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ticket-types/{{ticketTypeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ticket-types", "{{ticketTypeId}}"]
+            },
+            "description": "Deletes ticket type. Expected 200 OK."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrations & Payments",
+      "item": [
+        {
+          "name": "Create Registration (#28)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticket_type_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}/registrations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}", "registrations"]
+            },
+            "description": "Registers for event (BR-R1, BR-R2, BR-R3, FOR UPDATE locking). Expected 201 Created or 409 Conflict."
+          }
+        },
+        {
+          "name": "Get Registrations By Event (#29)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}/registrations?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}", "registrations"],
+              "query": [
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Lists event registrations (supports Accept: text/csv for CSV export). Expected 200 OK or 406 Not Acceptable."
+          }
+        },
+        {
+          "name": "Get Registration By ID (#30)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/registrations/{{registrationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "registrations", "{{registrationId}}"]
+            },
+            "description": "Gets registration detail with payment info. Expected 200 OK or 403 Forbidden."
+          }
+        },
+        {
+          "name": "Submit Payment (#31)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"bank_transfer\",\n  \"reference_number\": \"TRX123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/registrations/{{registrationId}}/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "registrations", "{{registrationId}}", "payment"]
+            },
+            "description": "Submits payment proof for registration. Expected 200 OK."
+          }
+        },
+        {
+          "name": "Verify Payment (#32)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"verified\",\n  \"note\": \"Payment verified successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/registrations/{{registrationId}}/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "registrations", "{{registrationId}}", "payment"]
+            },
+            "description": "Organizer verifies payment and confirms registration (generates ticket code). Expected 200 OK."
+          }
+        },
+        {
+          "name": "Cancel Registration (#33)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/registrations/{{registrationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "registrations", "{{registrationId}}"]
+            },
+            "description": "Cancels registration (max H-24 before event starts). Expected 200 OK or 409 Conflict."
+          }
+        },
+        {
+          "name": "Check-In Registration (#34)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/registrations/{{registrationId}}/check-in",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "registrations", "{{registrationId}}", "check-in"]
+            },
+            "description": "Checks in attendee (requires confirmed status and check-in window). Expected 200 OK or 409 Conflict."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 package model
 
-// WebResponse adalah struktur response sukses tanpa pagination.
+// struktur response sukses tanpa pagination
 type WebResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
 }
 
-// WebListResponse adalah response sukses dengan pagination offset.
+// response sukses dengan pagination offset
 type WebListResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -15,7 +15,7 @@ type WebListResponse struct {
 	Meta    Meta   `json:"meta"`
 }
 
-// WebCursorResponse adalah response sukses dengan pagination cursor.
+// response sukses dengan pagination cursor
 type WebCursorResponse struct {
 	Success bool       `json:"success"`
 	Message string     `json:"message"`
@@ -23,7 +23,7 @@ type WebCursorResponse struct {
 	Meta    CursorMeta `json:"meta"`
 }
 
-// Meta adalah informasi pagination offset.
+// informasi pagination offset
 type Meta struct {
 	Page       int `json:"page"`
 	Limit      int `json:"limit"`
